@@ -160,3 +160,23 @@ pub async fn edit_todo_handler(
         Err((StatusCode::NOT_FOUND, Json(error_response)))
     }
 }
+
+pub async fn delete_todo_handler(
+    Path(id): Path<Uuid>,
+    State(db): State<DB>,
+) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
+    let id = id.to_string();
+    let mut vec = db.lock().await;
+
+    if let Some(todo) = vec.iter().position(|todo| todo.id == Some(id.clone())) {
+        vec.remove(todo);
+        return Ok((StatusCode::NO_CONTENT, Json("")));
+    }
+
+    let error_response = serde_json::json!({
+        "status": "fail",
+        "message": format!("Todo with ID: {} not found", id)
+    });
+
+    Err((StatusCode::NOT_FOUND, Json(error_response)))
+}
