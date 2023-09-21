@@ -1,7 +1,10 @@
 use axum::{routing::get, Router};
 
 use crate::{
-    handlers::{create_todo_handler, get_todo_handler, health_checker_handler, todos_list_handler},
+    handlers::{
+        create_todo_handler, edit_todo_handler, get_todo_handler, health_checker_handler,
+        todos_list_handler,
+    },
     model,
 };
 
@@ -14,6 +17,9 @@ pub fn create_router() -> Router {
             "/api/todos",
             get(todos_list_handler).post(create_todo_handler),
         )
-        .route("/api/todos/:id", get(get_todo_handler))
+        .route(
+            "/api/todos/:id",
+            get(get_todo_handler).patch(edit_todo_handler),
+        )
         .with_state(db)
 }
